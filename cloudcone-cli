@@ -16,12 +16,12 @@ usage() {
 
     cat << EOF
 Name:
-    cloudcone-cli $VERSION by Wei He <github@weispot.com>
+    cloudcone-cli $VERSION by Wei He
 
-Usage:
-    $PROGNAME [action] [id] [option ...]
+用法:
+    $PROGNAME [action] [id] [选项 ...]
 
-Available actions:
+可用操作:
     boot
     graphs
     info
@@ -29,7 +29,7 @@ Available actions:
     shutdown
     status
 
-Actions available for compute instances only:
+仅适用于计算实例的操作:
     list
     list-os
     create              --payload
@@ -37,12 +37,12 @@ Actions available for compute instances only:
     reset-password      --payload
     resize              --payload
 
-Options:
-    -C, --compute       Compute instance (Default)
-    -D, --dedicated     Dedicated instance
-    -d, --payload       Payload to send with request
-    -h, --help          Display this usage message and exit
-    -v, --version       Prints version and exit
+选项:
+    -C, --compute       计算实例（默认）
+    -D, --dedicated     专用实例
+    -d, --payload       有效载荷随请求发送
+    -h, --help          显示用法
+    -v, --version       打印版本
 EOF
 
     exit 1
@@ -58,7 +58,7 @@ if ! [ -x "$(command -v curl)" ]; then
 fi
 
 if [ -z "$CC_KEY" ] || [ -z "$CC_HASH" ] ; then
-    die "Please add CC_KEY and CC_HASH as environment variables or prepend 'CC_KEY=[...] CC_HASH=[...]'."
+    die "请添加CC_KEY和CC_HASH作为环境变量，或在脚本前面加上“ CC_KEY = [...] CC_HASH = [...]”。"
 fi
 
 require() {
@@ -69,7 +69,7 @@ require() {
 
 checkCompute() {
     if [ "$mode" != "compute" ] ; then
-        die "action only allowed with compute instances."
+        die "仅适用于计算实例的操作。"
     fi
 }
 
@@ -105,21 +105,21 @@ while [ $# -gt 0 ] ; do
         exit 1
         ;;
     -C|--compute)
-        mode="compute"
+        mode="计算"
         ;;
     -D|--dedicated)
-        mode="dedicated"
+        mode="专用"
         ;;
     -d|--payload)
         if [ -z "$2" ] ; then
-          die "payload is missing."
+          die "有效载荷丢失。"
         else
           payload="$2"
           shift
         fi
         ;;
     -*)
-        usage "Unknown option '$1'"
+        usage "未知选项 '$1'"
         ;;
     *)
         if [ -z "$action" ] ; then
@@ -156,37 +156,37 @@ case "$action" in
     create)
         checkCompute
         if [ -z "$payload" ] ; then
-            read -p "Hostname: (Default: HOME) " input
+            read -p "主机名: (默认: HOME) " input
             payload="hostname=${input:=HOME}"
             input=""
-            read -p "Number of CPU Cores: (Default: 1) " input
+            read -p "CPU核心数: (默认: 1) " input
             payload+="&cpu=${input:=1}"
             input=""
-            read -p "RAM Size in MB: (Default: 512) " input
+            read -p "RAM大小 MB: (默认: 512) " input
             payload+="&ram=${input:=512}"
             input=""
-            read -p "Disk Size in GB: (Default: 5) " input
+            read -p "硬盘大小 GB: (默认: 5) " input
             payload+="&disk=${input:=5}"
             input=""
-            read -p "Number of IPv4s: (Default: 1) " input
+            read -p "IPv4s数量: (默认: 1) " input
             payload+="&ips=${input:=1}"
             input=""
-            echo "Loading Available OS..."
+            echo "正在加载可用的操作系统..."
             curlRequest "$API_ROOT/$mode/list/os"
             echo ""
-            read -p "Operating System Id: " input
+            read -p "作业系统编号: " input
             payload+="&os=$input"
             input=""
-            read -p "Enable SSD [1|0]: (Default: 1) " input
+            read -p "启用 SSD [1|0]: (默认: 1) " input
             payload+="&ssd=${input:=1}"
             input=""
-            read -p "Enable Private Networking [1|0]: (Default: 1) " input
+            read -p "启用专用网络 [1|0]: (默认: 1) " input
             payload+="&pvtnet=${input:=1}"
             input=""
-            read -p "Enable IPv6 [on|off]: (Default: on) " input
+            read -p "启用 IPv6 [on|off]: (默认: on) " input
             payload+="&ipv6=${input:=on}"
             input=""
-            read -p "Plan ID [Optional]: " input
+            read -p "Plan ID [可选的]: " input
             if ! [ -z "$input" ] ; then
               payload+="&plan=$input"
             fi
@@ -198,10 +198,10 @@ case "$action" in
         checkCompute
         require "id" "$id"
         if [ -z "$payload" ] ; then
-            echo "Loading Available OS..."
+            echo "正在加载可用的操作系统..."
             curlRequest "$API_ROOT/$mode/list/os"
             echo ""
-            read -p "Operating System Id: " input
+            read -p "作业系统编号: " input
             payload="os=$input"
             input=""
         fi
@@ -211,11 +211,11 @@ case "$action" in
         checkCompute
         require "id" "$id"
         if [ -z "$payload" ] ; then
-            read -sp "New password: " input
+            read -sp "新密码: " input
             payload="password=$input"
             input=""
             echo ""
-            read -p "Reboot now [true|false]: (Default: false) " input
+            read -p "马上重启 [true|false]: (Default: false) " input
             payload+="&reboot=${input:=false}"
             input=""
         fi
@@ -225,19 +225,19 @@ case "$action" in
         checkCompute
         require "id" "$id"
         if [ -z "$payload" ] ; then
-            read -p "Number of CPU Cores: (Default: 1) " input
+            read -p "CPU核心数量: (默认: 1) " input
             payload="cpu=${input:=1}"
             input=""
-            read -p "RAM Size in MB: (Default: 512) " input
+            read -p "内存大小 MB: (默认: 512) " input
             payload+="&ram=${input:=512}"
             input=""
-            read -p "Disk Size in GB: (Default: 5) " input
+            read -p "硬盘大小 GB: (默认: 5) " input
             payload+="&disk=${input:=5}"
             input=""
         fi
         curlRequest "$API_ROOT/$mode/$id/resize" "$payload"
         ;;
     *)
-        usage "Please enter a valid action."
+        usage "请输入有效的操作。"
         ;;
 esac
