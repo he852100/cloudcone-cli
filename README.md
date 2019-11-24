@@ -8,7 +8,7 @@ $ chmod +x cloudcone-cli
 ```
 
 ## 使用
-First set `CC_KEY` and `CC_HASH` environment variables, or run `CC_KEY=[...] CC_HASH=[...] cloudcone-cli [...]`.
+使用前需要设置`CC_KEY`和 `CC_HASH`环境变量。 或者在脚本中指定`CC_KEY=[...] CC_HASH=[...] cloudcone-cli [...]`参数.
 
 ```text
 使用:
