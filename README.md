@@ -1,48 +1,44 @@
 # cloudcone-cli
-Cloudcone commandline tool. Wrapper for https://api.cloudcone.com.
+cloudcone命令行工具. 用于 https://api.cloudcone.com.
 
-## Installation
+## 安装
 ```
 $ curl -sSLO https://prod.download/cloudcone-cli
 $ chmod +x cloudcone-cli
 ```
 
-## Usage
+## 使用
 First set `CC_KEY` and `CC_HASH` environment variables, or run `CC_KEY=[...] CC_HASH=[...] cloudcone-cli [...]`.
 
 ```text
-Usage:
-    cloudcone-cli [action] [id] [option ...]
+使用:
+    cloudcone-cli [action] [id] [选项 ...]
 
-Available actions:
-    boot
-    graphs
-    info
-    reboot
-    shutdown
-    status
+可用操作:
+    boot <启动>
+    graphs <图表>
+    info <虚拟机详细信息>
+    reboot <重启>
+    shutdown <关机>
+    status <状态>
 
-Actions available for compute instances only:
-    list
-    list-os
-    create              --payload
-    reinstall-os        --payload
-    reset-password      --payload
-    resize              --payload
+仅适用于计算实例的操作:
+    list	<已建虚拟机列表>
+    list-os	<可用os列表>
+    create              --payload	<创建虚拟机>
+    reinstall-os        --payload	<重新安装系统>
+    reset-password      --payload	<重置密码>
+    resize              --payload	<修改虚拟机大小>
 
-Options:
-    -C, --compute       Compute instance (Default)
-    -D, --dedicated     Dedicated instance
-    -d, --payload       Payload to send with request
-    -h, --help          Display this usage message and exit
-    -v, --version       Prints version and exit
+选项:
+    -C, --compute       计算实例（默认）
+    -D, --dedicated     专用实例
+    -d, --payload       有效载荷随请求发送
+    -h, --help          显示用法
+    -v, --version       打印版本
 ```
-Omit `--payload` for an interactive form.
+省略`--payload`以获取交互式表单。
 
-For prettier json outputs, pipe it to `| python -m json.tool` or other json beautify programs.
+如果希望结果易读, 可以使用管道传送到 `| python -m json.tool` 等json解析工具。
 
-## Author
-Wei He *github@weispot.com*
 
-## License
-[MIT](LICENSE)
