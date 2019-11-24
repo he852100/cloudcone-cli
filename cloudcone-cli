@@ -22,20 +22,20 @@ Name:
     $PROGNAME [action] [id] [选项 ...]
 
 可用操作:
-    boot
-    graphs
-    info
-    reboot
-    shutdown
-    status
+    boot	<启动>
+    graphs	<图表>
+    info	<虚拟机详细信息>
+    reboot	<重启>
+    shutdown	<关机>
+    status	<状态>
 
 仅适用于计算实例的操作:
-    list
-    list-os
-    create              --payload
-    reinstall-os        --payload
-    reset-password      --payload
-    resize              --payload
+    list	<已建虚拟机列表>
+    list-os	<可用os列表>
+    create              --payload	<创建虚拟机>
+    reinstall-os        --payload	<重新安装系统>
+    reset-password      --payload	<重置密码>
+    resize              --payload	<修改虚拟机大小>
 
 选项:
     -C, --compute       计算实例（默认）
