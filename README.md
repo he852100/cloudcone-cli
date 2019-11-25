@@ -3,7 +3,7 @@ cloudcone命令行工具. 用于 https://api.cloudcone.com.
 
 ## 安装
 ```
-$ curl -sSLO https://prod.download/cloudcone-cli
+$ curl -sSLO https://github.com/he852100/cloudcone-cli/raw/master/cloudcone-cli
 $ chmod +x cloudcone-cli
 ```
 
