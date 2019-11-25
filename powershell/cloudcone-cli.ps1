@@ -5,7 +5,10 @@ param(
     [int32] $id
 
 )
-
+$headers = @{
+    "App-Secret" = "$CC_KEY"
+    "Hash" = "$CC_HASH"
+}
 $changgui='graphs','boot','reboot','shutdown','Destroy','info','status','list-os','list'
 $changgui1=$changgui + "reinstall","create","resize","reset-password"
 If ($changgui1 -NotContains $Name){
@@ -31,14 +34,12 @@ Write-Host '用法:
 	cloudcone-cli -Name info|%{$_.__data.instances}
 	(cloudcone-cli -Name info).__data.instances
 	cloudcone-cli -Name reset-password	<重置密码>
-	cloudcone-cli.ps1 -Name info|ConvertTo-Json	<输出json>
-'
+	cloudcone-cli.ps1 -Name info|ConvertTo-Json	<输出json>'
 }elseif($Name){
 $uri='https://api.cloudcone.com/api/v1/compute'
-$headers = @{
-    'App-Secret' = 'IALM8RgHYuMLrWI5'
-    'Hash' = '6zUzWkdhPU9ijZ81AUNIM4qKycv09e5fNZPKk229X'
-}
+if(-not(($headers.'App-Secret'.length -gt 10) -and ($headers.Hash.Length -gt 10))  ){
+Write-Host -ForegroundColor Black -BackgroundColor White "没有设置变量，请设置`$CC_KEY，`$CC_HASH临时变量，或在cloudcone-cli.ps1中指定"
+break}
 $instances=Invoke-RestMethod -Uri "$uri/list/instances" -Method get -Headers $headers|%{$_.__data.instances}
 if($name -eq "resize"){
 $post=@('cpu','ram','disk')
@@ -74,8 +75,7 @@ $instances | Format-Table id,distro,created,ips|out-host
 #[int32]$id=Read-Host "请输入id"
 Write-Host "请输入" -ForegroundColor DarkBlue -NoNewline; Write-Host "id:" -ForegroundColor black -BackgroundColor White -NoNewline; [int32]$id=Read-Host;
 }
-$swi= switch ($name)
-{
+$swi= switch ($name){
 reinstall {"/$id/$name"}
 create {"/$name"}
 resize {"/$id/$name"}
@@ -94,8 +94,7 @@ $instances | Format-Table id,distro,created,ips|out-host
 Write-Host "请输入" -ForegroundColor DarkBlue -NoNewline; Write-Host "id:" -ForegroundColor black -BackgroundColor White -NoNewline; [int32]$id=Read-Host;
 }
 
-$swi= switch ($name)
-{
+$swi= switch ($name){
 graphs {"/$id/$name"}
 boot {"/$id/$name"}
 reboot {"/$id/$name"}
@@ -108,5 +107,4 @@ list {"/$name/instances"}}
 if($instances.id -Contains $id ){
 irm $uri$swi -Method get -Headers $headers
 }else{Write-Host -ForegroundColor Black -BackgroundColor White "你输入的id无效，请重新执行命令"}
-}
-}
+}}

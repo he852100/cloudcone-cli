@@ -1,10 +1,10 @@
 # cloudcone-cli
-cloudcone命令行工具. 用于 https://api.cloudcone.com.
+cloudcone命令行工具. 用于 https://api.cloudcone.com。
 
 ## 安装
 ```
-$ curl -sSLO https://prod.download/cloudcone-cli
-$ chmod +x cloudcone-cli
+$ curl -sSLO https://github.com/he852100/cloudcone-cli/raw/master/powershell/cloudcone-cli.ps1
+$ chmod +x cloudcone-cli.ps1
 ```
 
 ## 使用
@@ -12,33 +12,30 @@ $ chmod +x cloudcone-cli
 
 ```text
 使用:
-    cloudcone-cli [action] [id] [选项 ...]
+    cloudcone-cli -name [操作] -id [id] [选项 ...]
 
 可用操作:
-    boot <启动>
-    graphs <图表>
-    info <虚拟机详细信息>
-    reboot <重启>
-    shutdown <关机>
-    status <状态>
+    boot	<启动>
+    graphs	<图表>
+    info	<虚拟机详细信息>
+    reboot	<重启>
+    shutdown	<关机>
+    status	<状态>
 
 仅适用于计算实例的操作:
     list	<已建虚拟机列表>
     list-os	<可用os列表>
-    create              --payload	<创建虚拟机>
-    reinstall-os        --payload	<重新安装系统>
-    reset-password      --payload	<重置密码>
-    resize              --payload	<修改虚拟机大小>
-
-选项:
-    -C, --compute       计算实例（默认）
-    -D, --dedicated     专用实例
-    -d, --payload       有效载荷随请求发送
-    -h, --help          显示用法
-    -v, --version       打印版本
+    create     	<创建虚拟机>
+    reinstall	<重新安装系统>
+    reset-password	<重置密码>
+    resize              <修改虚拟机大小>
+示例:
+	cloudcone-cli -Name info|%{$_.__data.instances}
+	(cloudcone-cli -Name info).__data.instances
+	cloudcone-cli -Name reset-password	<重置密码>
+	cloudcone-cli.ps1 -Name info|ConvertTo-Json	<输出json>
 ```
-省略`--payload`以获取交互式表单。
+省略`-id *`以获取交互式表单。
 
-如果希望结果易读, 可以使用管道传送到 `| python -m json.tool` 等json解析工具。
 
 
