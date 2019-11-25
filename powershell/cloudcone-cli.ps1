@@ -28,9 +28,9 @@ Write-Host '用法:
     reset-password	<重置密码>
     resize              <修改虚拟机大小>
 示例:
-	./g -Name info|%{$_.__data.instances}
-	(./g -Name info).__data.instances
-	./g -Name reset-password
+	cloudcone-cli -Name info|%{$_.__data.instances}
+	(cloudcone-cli -Name info).__data.instances
+	cloudcone-cli -Name reset-password
 '
 }elseif($Name){
 $uri='https://api.cloudcone.com/api/v1/compute'
