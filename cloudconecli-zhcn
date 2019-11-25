@@ -1,0 +1,243 @@
+#!/usr/bin/env bash
+set -e
+
+PROGNAME=$(basename $0)
+VERSION="0.9.5-RC"
+
+API_ROOT="https://api.cloudcone.com/api/v1"
+CC_KEY="$CC_KEY"
+CC_HASH="$CC_HASH"
+
+usage() {
+    if [ "$*" != "" ] ; then
+        echo "Error: $*"
+        echo ""
+    fi
+
+    cat << EOF
+Name:
+    cloudcone-cli $VERSION by Wei He
+
+用法:
+    $PROGNAME [action] [id] [选项 ...]
+
+可用操作:
+    boot	<启动>
+    graphs	<图表>
+    info	<虚拟机详细信息>
+    reboot	<重启>
+    shutdown	<关机>
+    status	<状态>
+
+仅适用于计算实例的操作:
+    list	<已建虚拟机列表>
+    list-os	<可用os列表>
+    create              --payload	<创建虚拟机>
+    reinstall-os        --payload	<重新安装系统>
+    reset-password      --payload	<重置密码>
+    resize              --payload	<修改虚拟机大小>
+
+选项:
+    -C, --compute       计算实例（默认）
+    -D, --dedicated     专用实例
+    -d, --payload       有效载荷随请求发送
+    -h, --help          显示用法
+    -v, --version       打印版本
+EOF
+
+    exit 1
+}
+
+die() {
+    echo "$PROGNAME: $*" >&2
+    exit 1
+}
+
+if ! [ -x "$(command -v curl)" ]; then
+    die "curl is not installed."
+fi
+
+if [ -z "$CC_KEY" ] || [ -z "$CC_HASH" ] ; then
+    die "请添加CC_KEY和CC_HASH作为环境变量，或在脚本前面加上“ CC_KEY = [...] CC_HASH = [...]”。"
+fi
+
+require() {
+    if [ -z "$2" ] ; then
+        die "'$1' is missing."
+    fi
+}
+
+checkCompute() {
+    if [ "$mode" != "compute" ] ; then
+        die "仅适用于计算实例的操作。"
+    fi
+}
+
+curlRequest() {
+    if [ -z "$2" ] ; then
+        curl -sSf \
+            -H "App-Secret: $CC_KEY" \
+            -H "Hash: $CC_HASH" \
+            "$1"
+    else
+        curl -sSf \
+            -H "App-Secret: $CC_KEY" \
+            -H "Hash: $CC_HASH" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -X POST -d "$2" \
+            "$1"
+    fi
+}
+
+
+mode="compute"
+action=""
+id=""
+payload=""
+
+while [ $# -gt 0 ] ; do
+    case "$1" in
+    -h|--help)
+        usage
+        ;;
+    -v|--version)
+        echo "$VERSION"
+        exit 1
+        ;;
+    -C|--compute)
+        mode="计算"
+        ;;
+    -D|--dedicated)
+        mode="专用"
+        ;;
+    -d|--payload)
+        if [ -z "$2" ] ; then
+          die "有效载荷丢失。"
+        else
+          payload="$2"
+          shift
+        fi
+        ;;
+    -*)
+        usage "未知选项 '$1'"
+        ;;
+    *)
+        if [ -z "$action" ] ; then
+          action="$1"
+        elif [ -z "$id" ] ; then
+          id="$1"
+        fi
+        ;;
+    esac
+    shift
+done
+
+
+case "$action" in
+    help)
+        usage
+        ;;
+    version)
+        echo "$VERSION"
+        exit 1
+        ;;
+    boot|graphs|info|reboot|shutdown|status)
+        require "id" "$id"
+        curlRequest "$API_ROOT/$mode/$id/$action"
+        ;;
+    list)
+        checkCompute
+        curlRequest "$API_ROOT/$mode/list/instances"
+        ;;
+    list-os)
+        checkCompute
+        curlRequest "$API_ROOT/$mode/list/os"
+        ;;
+    create)
+        checkCompute
+        if [ -z "$payload" ] ; then
+            read -p "主机名: (默认: HOME) " input
+            payload="hostname=${input:=HOME}"
+            input=""
+            read -p "CPU核心数: (默认: 1) " input
+            payload+="&cpu=${input:=1}"
+            input=""
+            read -p "RAM大小 MB: (默认: 512) " input
+            payload+="&ram=${input:=512}"
+            input=""
+            read -p "硬盘大小 GB: (默认: 5) " input
+            payload+="&disk=${input:=5}"
+            input=""
+            read -p "IPv4s数量: (默认: 1) " input
+            payload+="&ips=${input:=1}"
+            input=""
+            echo "正在加载可用的操作系统..."
+            curlRequest "$API_ROOT/$mode/list/os"
+            echo ""
+            read -p "作业系统编号: " input
+            payload+="&os=$input"
+            input=""
+            read -p "启用 SSD [1|0]: (默认: 1) " input
+            payload+="&ssd=${input:=1}"
+            input=""
+            read -p "启用专用网络 [1|0]: (默认: 1) " input
+            payload+="&pvtnet=${input:=1}"
+            input=""
+            read -p "启用 IPv6 [on|off]: (默认: on) " input
+            payload+="&ipv6=${input:=on}"
+            input=""
+            read -p "Plan ID [可选的]: " input
+            if ! [ -z "$input" ] ; then
+              payload+="&plan=$input"
+            fi
+            input=""
+        fi
+        curlRequest "$API_ROOT/$mode/create" "$payload"
+        ;;
+    reinstall-os)
+        checkCompute
+        require "id" "$id"
+        if [ -z "$payload" ] ; then
+            echo "正在加载可用的操作系统..."
+            curlRequest "$API_ROOT/$mode/list/os"
+            echo ""
+            read -p "作业系统编号: " input
+            payload="os=$input"
+            input=""
+        fi
+        curlRequest "$API_ROOT/$mode/$id/reinstall" "$payload"
+        ;;
+    reset-password)
+        checkCompute
+        require "id" "$id"
+        if [ -z "$payload" ] ; then
+            read -sp "新密码: " input
+            payload="password=$input"
+            input=""
+            echo ""
+            read -p "马上重启 [true|false]: (Default: false) " input
+            payload+="&reboot=${input:=false}"
+            input=""
+        fi
+        curlRequest "$API_ROOT/$mode/$id/reset/pass" "$payload"
+        ;;
+    resize)
+        checkCompute
+        require "id" "$id"
+        if [ -z "$payload" ] ; then
+            read -p "CPU核心数量: (默认: 1) " input
+            payload="cpu=${input:=1}"
+            input=""
+            read -p "内存大小 MB: (默认: 512) " input
+            payload+="&ram=${input:=512}"
+            input=""
+            read -p "硬盘大小 GB: (默认: 5) " input
+            payload+="&disk=${input:=5}"
+            input=""
+        fi
+        curlRequest "$API_ROOT/$mode/$id/resize" "$payload"
+        ;;
+    *)
+        usage "请输入有效的操作。"
+        ;;
+esac
