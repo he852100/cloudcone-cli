@@ -47,7 +47,6 @@ $nm=@("1","1024","20")
 $note=@('CPU 核心数(1-16)','RAM in MB(512-16000)','硬盘空间（GB）')
 }
 if($name -eq "reinstall"){
-#Invoke-RestMethod -Uri "$uri/list/os" -Method get -Headers $headers|%{$_.__data}|out-host
 $post=@('os')
 $nm=@("54")
 $note=@('操作系统编号')
@@ -58,7 +57,6 @@ $nm=@(";:.-/_:-,……-","false")
 $note=@('修改密码')
 }
 if($name -eq "create"){
-#Invoke-RestMethod -Uri "$uri/list/os" -Method get -Headers $headers|%{$_.__data}|out-host
 $note=@('主机名','CPU 核心数(1-16)','RAM in MB(512-16000)','硬盘空间（GB）','ipv4数量(1-100)','操作系统','启用 SSD (1/0)','启用专用网络 (1/0)','启用 IPv6 (on/off)')
 $post=@('hostname','cpu','ram','disk','ips','os','ssd','pvtnet','ipv6')
 $nm=@("test.com","1","1024","20","1","54","0","1","on")
