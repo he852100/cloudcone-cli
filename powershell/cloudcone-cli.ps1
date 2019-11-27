@@ -109,7 +109,7 @@ info {"/$id/$name"}
 status {"/$id/$name"}
 list-os {"/list/os"}
 list {"/$name/instances"}}
-irm $uri$swi -Method get -Headers $headers|%{
+irm $uri$swi -Method get -Headers $headers |%{
 $_.status
 $_.message
 $_.__data.instances
